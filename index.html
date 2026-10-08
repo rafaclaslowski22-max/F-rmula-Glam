@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Glamour & Speed 🎀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        display: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        girl: {
+                            pink: '#FF69B4', // Hot Pink
+                            lightPink: '#FFB6C1', // Light Pink
+                            red: '#FF0035', // Vibrant Red
+                            bg: '#FFF0F5', // Lavender Blush
+                        },
+                        f1: {
+                            redbull: '#3671C6',
+                            mercedes: '#27F4D2',
+                            ferrari: '#E8002D',
+                            mclaren: '#FF8000',
+                            aston: '#229971',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            /* Fundo gradiente super charmoso */
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFC0CB 100%);
+            color: #4A0E4E; /* Roxo escuro para contraste de leitura */
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+
+        /* Efeito Glitter Rosa */
+        #glitter-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatTwinkle linear infinite;
+            filter: blur(1px);
+        }
+
+        @keyframes floatTwinkle {
+            0% { opacity: 0; transform: translateY(0) scale(0); }
+            50% { opacity: 0.8; transform: translateY(-20px) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(0); }
+        }
+
+        /* Glassmorphism Cards */
+        .girly-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 1.5rem; /* Cantos bem arredondados */
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .girly-card:hover {
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar fofa */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #FFB6C1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF69B4; }
+
+        /* Jogo Rosa */
+        #gameCanvas {
+            background-color: #FFF0F5;
+            border: 4px solid #FF69B4;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+            touch-action: none; 
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen antialiased">
+
+    <div id="glitter-container"></div>
+
+    <!-- Notificação de Desbloqueio (Coleção) -->
+    <div id="unlockNotification" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-white/95 backdrop-blur-md border-2 border-girl-pink rounded-full px-6 py-3 shadow-2xl flex items-center gap-4 transition-all duration-500 opacity-0 pointer-events-none translate-y-[-20px]">
+        <img id="unlockImg" src="" class="w-12 h-12 rounded-full border-2 border-pink-300 shadow-sm bg-pink-50 object-cover">
+        <div>
+            <p class="text-xs text-girl-pink font-bold uppercase tracking-wider"><i class="fa-solid fa-gift mr-1"></i> Novo Boneco!</p>
+            <p id="unlockName" class="text-gray-800 font-display font-bold text-lg"></p>
+        </div>
+    </div>
+
+    <!-- Top Navbar -->
+    <nav class="girly-card m-4 p-4 flex flex-col md:flex-row justify-between items-center gap-4 z-10 relative">
+        <!-- Logo F1 Red & Pink -->
+        <div class="flex items-center gap-1 cursor-pointer hover:scale-105 transition-transform" onclick="renderContent('home')">
+            <svg width="40" height="30" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                <!-- F estilizado em vermelho -->
+                <path d="M10 10 H70 V30 H30 V45 H60 V65 H30 V80 H10 Z" fill="#FF0035"/>
+                <!-- Linhas de velocidade em rosa -->
+                <path d="M80 10 H100 V30 H80 Z" fill="#FF69B4"/>
+                <path d="M70 45 H90 V65 H70 Z" fill="#FF69B4"/>
+            </svg>
+            <span class="text-3xl font-extrabold italic text-girl-red tracking-tighter">FORMULA</span>
+            <span class="text-3xl font-extrabold italic text-girl-pink tracking-tighter ml-1">GLAM</span>
+        </div>
+        
+        <!-- Barra de pesquisa -->
+        <div class="relative w-full md:w-1/3">
+            <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-pink-400"></i>
+            <input type="text" id="searchInput" placeholder="Pesquisar pilotos, fofocas..." 
+                class="w-full bg-white/70 text-gray-700 rounded-full py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-girl-pink transition-all border border-pink-200 placeholder-pink-300 shadow-inner">
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden pb-4 px-4 gap-4 z-10">
+        
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 girly-card overflow-y-auto flex flex-row md:flex-col gap-3 p-5 shrink-0">
+            <h2 class="hidden md:block text-sm font-bold text-girl-pink uppercase tracking-widest mb-2 text-center">💖 Menu Principal</h2>
+            
+            <button onclick="renderContent('standings')" class="flex items-center gap-3 p-3 rounded-xl bg-white/40 hover:bg-girl-pink hover:text-white transition-all text-left text-gray-600 font-semibold shadow-sm">
+                <i class="fa-solid fa-crown text-girl-pink group-hover:text-white"></i>
+                <span class="hidden md:inline">Classificação</span>
+            </button>
+            
+            <button onclick="renderContent('gossip')" class="flex items-center gap-3 p-3 rounded-xl bg-white/40 hover:bg-girl-pink hover:text-white transition-all text-left text-gray-600 font-semibold shadow-sm">
+                <i class="fa-solid fa-gem text-girl-pink"></i>
+                <span class="hidden md:inline">Fofocas Exclusivas</span>
+            </button>
+
+            <button onclick="renderContent('predictions')" class="flex items-center gap-3 p-3 rounded-xl bg-white/40 hover:bg-girl-pink hover:text-white transition-all text-left text-gray-600 font-semibold shadow-sm">
+                <i class="fa-solid fa-star text-girl-pink"></i>
+                <span class="hidden md:inline">Previsões Astrológicas</span>
+            </button>
+
+            <button onclick="renderContent('trivia')" class="flex items-center gap-3 p-3 rounded-xl bg-white/40 hover:bg-girl-pink hover:text-white transition-all text-left text-gray-600 font-semibold shadow-sm">
+                <i class="fa-solid fa-heart text-girl-pink"></i>
+                <span class="hidden md:inline">Curiosidades VIP</span>
+            </button>
+
+            <button onclick="renderContent('collection')" class="flex items-center gap-3 p-3 rounded-xl bg-white/40 hover:bg-girl-pink hover:text-white transition-all text-left text-gray-600 font-semibold shadow-sm">
+                <i class="fa-solid fa-box-open text-girl-pink group-hover:text-white"></i>
+                <span class="hidden md:inline">Minha Coleção</span>
+            </button>
+
+            <div class="md:mt-auto pt-2 md:border-t border-pink-200"></div>
+
+            <button onclick="renderContent('game')" class="flex items-center justify-center md:justify-start gap-3 p-4 bg-gradient-to-r from-girl-pink to-girl-red text-white rounded-xl shadow-lg hover:scale-105 transition-transform text-left font-display font-bold mt-2">
+                <i class="fa-solid fa-car-side"></i>
+                <span class="hidden md:inline">PLAY: CORRIDA GLAM</span>
+            </button>
+        </aside>
+
+        <!-- Content Area -->
+        <main id="contentArea" class="flex-1 girly-card overflow-y-auto p-6 md:p-10 relative">
+            <!-- Dynamic content will be injected here -->
+        </main>
+    </div>
+
+    <script>
+        // --- DATA (Atualizada para vibe Glam/Girl) ---
+        const getMiniature = (seed, color) => `https://api.dicebear.com/9.x/micah/svg?seed=${seed}&clothing=shirt&clothingColor=${color}&backgroundColor=transparent`;
+
+        const db = {
+            standings: [
+                { pos: 1, driver: "Max Verstappen", team: "Red Bull", points: 275, color: 'bg-f1-redbull', img: getMiniature('MaxV', '1e41ff') },
+                { pos: 2, driver: "Lando Norris", team: "McLaren", points: 256, color: 'bg-f1-mclaren', img: getMiniature('LandoN', 'ff8000') },
+                { pos: 3, driver: "Charles Leclerc", team: "Ferrari", points: 210, color: 'bg-f1-ferrari', img: getMiniature('CharlesL', 'ff2800') },
+                { pos: 4, driver: "Oscar Piastri", team: "McLaren", points: 195, color: 'bg-f1-mclaren', img: getMiniature('OscarP', 'ff8000') },
+                { pos: 5, driver: "Carlos Sainz", team: "Williams", points: 170, color: 'bg-blue-600', img: getMiniature('CarlosS', '005aff') },
+                { pos: 6, driver: "Lewis Hamilton", team: "Ferrari", points: 165, color: 'bg-f1-ferrari', img: getMiniature('LewisH', 'ff2800') },
+                { pos: 7, driver: "George Russell", team: "Mercedes", points: 145, color: 'bg-f1-mercedes', img: getMiniature('GeorgeR', '00d2be') },
+                { pos: 8, driver: "Sergio Perez", team: "Red Bull", points: 110, color: 'bg-f1-redbull', img: getMiniature('SergioP', '1e41ff') },
+                { pos: 9, driver: "Fernando Alonso", team: "Aston Martin", points: 95, color: 'bg-f1-aston', img: getMiniature('FernandoA', '006f62') },
+                { pos: 10, driver: "Kimi Antonelli", team: "Mercedes", points: 88, color: 'bg-f1-mercedes', img: getMiniature('KimiA', '00d2be') },
+                { pos: 11, driver: "Alex Albon", team: "Williams", points: 80, color: 'bg-blue-600', img: getMiniature('AlexA', '005aff') },
+                { pos: 12, driver: "Pierre Gasly", team: "Alpine", points: 65, color: 'bg-pink-400', img: getMiniature('PierreG', 'ff87bc') },
+                { pos: 13, driver: "Yuki Tsunoda", team: "RB", points: 50, color: 'bg-blue-400', img: getMiniature('YukiT', '4b70ff') },
+                { pos: 14, driver: "Lance Stroll", team: "Aston Martin", points: 42, color: 'bg-f1-aston', img: getMiniature('LanceS', '006f62') },
+                { pos: 15, driver: "Nico Hulkenberg", team: "Sauber", points: 35, color: 'bg-green-400', img: getMiniature('NicoH', '00ff00') },
+                { pos: 16, driver: "Esteban Ocon", team: "Haas", points: 30, color: 'bg-gray-800', img: getMiniature('EstebanO', '333333') },
+                { pos: 17, driver: "Franco Colapinto", team: "Williams", points: 28, color: 'bg-blue-600', img: getMiniature('FrancoC', '005aff') },
+                { pos: 18, driver: "Gabriel Bortoleto", team: "Sauber", points: 20, color: 'bg-green-400', img: getMiniature('GabrielB', '00ff00') },
+                { pos: 19, driver: "Ollie Bearman", team: "Haas", points: 15, color: 'bg-gray-800', img: getMiniature('OllieB', '333333') },
+                { pos: 20, driver: "Jack Doohan", team: "Alpine", points: 12, color: 'bg-pink-400', img: getMiniature('JackD', 'ff87bc') },
+                { pos: 21, driver: "Isack Hadjar", team: "RB", points: 8, color: 'bg-blue-400', img: getMiniature('IsackH', '4b70ff') },
+                { pos: 22, driver: "Zhou Guanyu", team: "Ferrari", points: 5, color: 'bg-f1-ferrari', img: getMiniature('ZhouG', 'ff2800') }
+            ],
+            gossip: [
+                { title: "Look do Dia no Paddock", text: "Lewis Hamilton chegou em Miami vestindo um conjunto rosa pastel da Dior que parou a internet. Ele provou mais uma vez que a pista de corrida também é passarela!", icon: "fa-camera-retro", color: "text-pink-500" },
+                { title: "Romance em Mônaco? 💖", text: "Charles Leclerc foi flagrado em um iate em Mônaco com um buquê de peônias gigantes. Os fãs estão em surto tentando descobrir quem é a felizarda da vez.", icon: "fa-heart", color: "text-red-500" },
+                { title: "Skin Care Oculto", text: "Vazou o segredo da pele perfeita de Lando Norris: máscaras faciais de ouro 24k enquanto joga videogame de madrugada no hotel.", icon: "fa-spa", color: "text-orange-400" },
+                { title: "Tretas no Rádio", text: "Max Verstappen reclamou que a garrafa de água no cockpit estava 'quente demais para beber'. Diva comportamentos apenas!", icon: "fa-martini-glass", color: "text-blue-500" }
+            ],
+            predictions: [
+                { race: "GP de Miami", pred: "Muito glitter, celebridades perdidas nos boxes e uma ultrapassagem histórica na última volta. Alguém vai usar um capacete com cristais Swarovski.", img: "fa-sun" },
+                { race: "GP da Itália (Monza)", pred: "Os Tifosi vão à loucura. Leclerc ganha, chora no pódio e a Ferrari lança uma edição limitada de esmaltes vermelho-corrida no dia seguinte.", img: "fa-pizza-slice" },
+                { race: "GP de Las Vegas", pred: "Caos absoluto. Um dos pilotos vai acidentalmente casar numa daquelas capelas drive-thru antes do fim de semana acabar.", img: "fa-ring" }
+            ],
+            trivia: [
+                "Os pilotos perdem até 3kg de líquidos durante uma corrida quente. Imagina o nível do detox? É por isso que eles têm treinamentos absurdos!",
+                "Um volante de F1 é como uma bolsa de grife ultra tecnológica. Custa quase R$ 300.000 e tem botões para tudo, até para beber água.",
+                "A dieta dos pilotos é super rigorosa. Muito salmão, quinoa e zero açúcar. Mas depois da vitória, sempre rola uma pizza gigante nos bastidores.",
+                "A maquiagem não derrete fácil no grid de largada por causa da tensão, mas sim do calor absurdo do asfalto que pode passar dos 50°C!"
+            ]
+        };
+
+        // --- STREAMING_CHUNK:Criando o efeito de brilho e estrelas ---
+        function createGlitter() {
+            const container = document.getElementById('glitter-container');
+            const colors = ['#FF69B4', '#FFB6C1', '#FFFFFF', '#FF1493'];
+            const numParticles = 80;
+
+            for (let i = 0; i < numParticles; i++) {
+                let particle = document.createElement('div');
+                particle.classList.add('sparkle');
+                
+                let size = Math.random() * 4 + 2; 
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.boxShadow = `0 0 ${size}px ${particle.style.backgroundColor}`;
+                
+                let duration = Math.random() * 3 + 2; 
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+
+                container.appendChild(particle);
+            }
+        }
+        createGlitter();
+
+        // --- STREAMING_CHUNK:Lógica de renderização das telas ---
+        const contentArea = document.getElementById('contentArea');
+        let currentGameInterval = null;
+
+        function renderContent(section) {
+            if (currentGameInterval) {
+                cancelAnimationFrame(currentGameInterval);
+                currentGameInterval = null;
+            }
+
+            let html = '';
+
+            switch(section) {
+                case 'home':
+                    html = `
+                        <div class="h-full flex flex-col items-center justify-center text-center space-y-6">
+                            <div class="bg-white/80 text-girl-pink px-6 py-2 rounded-full font-bold text-sm shadow-sm inline-block mb-2 border border-pink-200">
+                                BEM-VINDA AO PADDOCK CLUB 💅✨
+                            </div>
+                            <h1 class="text-5xl md:text-7xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-girl-red to-girl-pink drop-shadow-sm">
+                                VELOCIDADE &<br>GLAMOUR
+                            </h1>
+                            <p class="text-lg text-gray-600 max-w-xl font-light">
+                                Tudo o que você precisa saber sobre Fórmula 1, desde quem está liderando o campeonato até quem usou o melhor look no final de semana. 
+                            </p>
+                            <img src="https://placehold.co/400x150/FFB6C1/FFFFFF?text=F1+Glamour" class="rounded-2xl shadow-lg mt-4 hidden" alt="F1 Banner" />
+                        </div>
+                    `;
+                    break;
+                case 'standings':
+                    html = `
+                        <div class="mb-6 flex justify-between items-end border-b border-pink-200 pb-4">
+                            <h2 class="text-3xl md:text-4xl font-display font-bold text-girl-red">
+                                <i class="fa-solid fa-crown text-yellow-400 mr-2"></i> Classificação
+                            </h2>
+                        </div>
+                        <div class="space-y-4">
+                            ${db.standings.map(s => `
+                                <div class="bg-white/80 border border-white p-4 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group">
+                                    <div class="text-2xl font-bold ${s.pos === 1 ? 'text-yellow-400' : 'text-pink-300'} w-8 text-center">${s.pos}</div>
+                                    <div class="w-14 h-14 bg-pink-50 rounded-full flex items-center justify-center shadow-inner border-2 border-white overflow-hidden group-hover:scale-105 transition-transform shrink-0">
+                                        <img src="${s.img}" alt="${s.driver}" class="w-16 h-16 object-cover transform translate-y-1">
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-bold text-gray-800">${s.driver}</h3>
+                                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                                            <span class="w-3 h-3 rounded-full ${s.color} shadow-sm"></span> ${s.team}
+                                        </div>
+                                    </div>
+                                    <div class="text-2xl font-display font-bold text-girl-pink">
+                                        ${s.points} <span class="text-xs font-normal text-gray-400">pts</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+                case 'gossip':
+                    html = `
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-girl-pink mb-6 border-b border-pink-200 pb-4">
+                            <i class="fa-solid fa-champagne-glasses mr-2"></i> Fofocas do Paddock
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            ${db.gossip.map(g => `
+                                <div class="bg-white/90 border border-pink-100 p-6 rounded-3xl shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 relative overflow-hidden">
+                                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-pink-50 rounded-full z-0"></div>
+                                    <div class="relative z-10 flex items-center gap-4 mb-4">
+                                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-xl ${g.color}">
+                                            <i class="fa-solid ${g.icon}"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-800 leading-tight">${g.title}</h3>
+                                    </div>
+                                    <p class="text-gray-600 text-sm leading-relaxed relative z-10">${g.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+                case 'predictions':
+                    html = `
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-purple-600 mb-6 border-b border-pink-200 pb-4">
+                            <i class="fa-solid fa-moon mr-2"></i> Previsões Astrológicas
+                        </h2>
+                        <div class="space-y-4">
+                            ${db.predictions.map(p => `
+                                <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 p-6 rounded-2xl flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-inner text-2xl text-purple-400 shrink-0">
+                                        <i class="fa-solid ${p.img}"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800 mb-2">${p.race}</h3>
+                                        <p class="text-gray-600 text-sm">${p.pred}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+                case 'trivia':
+                    html = `
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-girl-red mb-6 border-b border-pink-200 pb-4">
+                            <i class="fa-solid fa-gem mr-2"></i> Curiosidades VIP
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${db.trivia.map((t, i) => `
+                                <div class="bg-white/80 border border-white p-6 rounded-2xl shadow-sm relative group hover:bg-pink-50 transition-colors">
+                                    <span class="absolute top-4 right-4 text-3xl font-display font-bold text-pink-100 group-hover:text-pink-200 transition-colors">0${i+1}</span>
+                                    <p class="relative z-10 text-gray-700 text-sm leading-relaxed mt-2">${t}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+                case 'collection':
+                    const total = db.standings.length;
+                    const unlockedCount = unlockedDrivers.length;
+                    html = `
+                        <div class="mb-6 flex justify-between items-end border-b border-pink-200 pb-4">
+                            <h2 class="text-3xl md:text-4xl font-display font-bold text-girl-pink">
+                                <i class="fa-solid fa-box-open mr-2 text-pink-400"></i> Minha Coleção
+                            </h2>
+                            <span class="text-gray-600 font-bold bg-white px-4 py-2 rounded-full shadow-sm text-sm border border-pink-100">
+                                Desbloqueados: <span class="text-girl-pink text-lg">${unlockedCount} / ${total}</span>
+                            </span>
+                        </div>
+                        <p class="text-gray-500 mb-8 text-sm max-w-2xl bg-white/50 p-4 rounded-xl border border-pink-50">
+                            <strong>Como jogar:</strong> A cada 200 pontos atingidos de uma só vez no joguinho "Corrida Glam", você ganha uma caixa surpresa contendo uma miniatura de um piloto para a sua estante virtual! 💖
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                            ${db.standings.map(s => {
+                                const isUnlocked = unlockedDrivers.includes(s.driver);
+                                return `
+                                <div class="bg-white/80 border ${isUnlocked ? 'border-pink-300 shadow-md' : 'border-gray-200 opacity-60'} p-4 rounded-3xl flex flex-col items-center text-center transition-all duration-300 ${isUnlocked ? 'hover:-translate-y-2 hover:shadow-xl hover:bg-pink-50 cursor-pointer' : ''}">
+                                    <div class="relative w-16 h-16 mb-3 bg-pink-100 rounded-full flex items-center justify-center shadow-inner overflow-visible">
+                                        <img src="${s.img}" alt="${s.driver}" class="w-20 h-20 absolute -top-1 ${isUnlocked ? 'drop-shadow-md' : 'grayscale opacity-50 drop-shadow-none'} transition-all z-0" style="max-width: none;">
+                                        ${!isUnlocked ? '<div class="absolute inset-0 flex items-center justify-center bg-white/40 rounded-full backdrop-blur-[2px] z-10"><i class="fa-solid fa-lock text-xl text-gray-500 drop-shadow-md"></i></div>' : ''}
+                                    </div>
+                                    <h3 class="text-xs font-display font-bold leading-tight ${isUnlocked ? 'text-gray-800' : 'text-gray-400'}">${s.driver}</h3>
+                                    <span class="text-[10px] ${isUnlocked ? 'text-girl-pink' : 'text-gray-400'} mt-1 font-semibold uppercase tracking-wider">${s.team}</span>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                    break;
+                case 'game':
+                    html = `
+                        <div class="flex flex-col items-center justify-center w-full h-full relative">
+                            <div class="w-full flex justify-between items-center mb-4 px-4">
+                                <h2 class="text-2xl font-display font-bold text-girl-pink">CORRIDA GLAMOUROSA 💋</h2>
+                                <div class="text-lg font-bold bg-white px-4 py-2 rounded-full shadow-sm text-gray-700">
+                                    Pontos: <span id="scoreDisplay" class="text-girl-red font-display text-xl">0</span>
+                                </div>
+                            </div>
+                            <div class="relative w-full flex justify-center max-w-sm">
+                                <canvas id="gameCanvas" width="340" height="480"></canvas>
+                                <div id="gameOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl">
+                                    <h3 class="text-3xl font-display font-bold text-girl-red mb-2 text-center" id="gameOverText">PRONTA PARA ACELERAR?</h3>
+                                    <p class="text-gray-500 text-sm mb-6 px-4 text-center">Desvie dos obstáculos vermelhos e mostre quem manda na pista!</p>
+                                    <button onclick="startGame()" class="px-8 py-3 bg-gradient-to-r from-girl-pink to-girl-red text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                                        COMEÇAR JOGO
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    contentArea.innerHTML = html;
+                    initGameSetup();
+                    return; 
+            }
+            contentArea.innerHTML = html;
+        }
+
+        // --- STREAMING_CHUNK:Sistema de Pesquisa Inteligente ---
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            if(term.length === 0) { renderContent('home'); return; }
+
+            let resultsHTML = `<h2 class="text-2xl font-display font-bold mb-6 text-girl-pink border-b border-pink-200 pb-2">Pesquisando: "${term}"</h2>`;
+            let found = false;
+
+            const gossipRes = db.gossip.filter(g => g.title.toLowerCase().includes(term) || g.text.toLowerCase().includes(term));
+            if (gossipRes.length > 0) {
+                found = true;
+                resultsHTML += `<h3 class="text-lg text-girl-red font-bold mt-4 mb-2"><i class="fa-solid fa-gem"></i> Nas Fofocas</h3>`;
+                gossipRes.forEach(g => {
+                    resultsHTML += `<div class="p-4 bg-white rounded-xl shadow-sm mb-3 border border-pink-50"><span class="font-bold text-gray-800">${g.title}:</span> <span class="text-gray-600 text-sm">${g.text}</span></div>`;
+                });
+            }
+
+            const driversRes = db.standings.filter(s => s.driver.toLowerCase().includes(term) || s.team.toLowerCase().includes(term));
+            if (driversRes.length > 0) {
+                found = true;
+                resultsHTML += `<h3 class="text-lg text-girl-red font-bold mt-6 mb-2"><i class="fa-solid fa-crown"></i> Nos Pilotos</h3>`;
+                driversRes.forEach(s => {
+                    resultsHTML += `<div class="p-4 bg-white rounded-xl shadow-sm mb-3 flex items-center gap-3 border border-pink-50">
+                        <div class="w-10 h-10 bg-pink-50 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                            <img src="${s.img}" class="w-12 h-12 transform translate-y-1"> 
+                        </div>
+                        <span class="font-bold text-gray-800">${s.driver} <span class="text-xs text-gray-400 font-normal">(${s.team})</span></span> 
+                        <span class="ml-auto text-girl-pink font-bold">${s.points} Pts</span>
+                    </div>`;
+                });
+            }
+
+            if (!found) {
+                resultsHTML += `<div class="text-gray-400 text-center mt-10"><i class="fa-solid fa-face-sad-tear text-4xl mb-4 text-pink-200"></i><br>Oops! Nenhuma fofoca ou piloto encontrado com esse nome.</div>`;
+            }
+
+            contentArea.innerHTML = resultsHTML;
+        });
+
+        // --- STREAMING_CHUNK:Minigame com Física e Desenho ---
+        let canvas, ctx;
+        let car, obstacles, score, gameSpeed, frameCount, isGameOver;
+        let keys = { ArrowLeft: false, ArrowRight: false };
+
+        // Variáveis da Coleção
+        let unlockedDrivers = [];
+        let nextUnlockScore = 200;
+
+        function showUnlockNotification(driver) {
+            const notif = document.getElementById('unlockNotification');
+            document.getElementById('unlockImg').src = driver.img;
+            document.getElementById('unlockName').innerText = driver.driver;
+            
+            notif.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+            notif.classList.add('opacity-100', 'translate-y-0');
+            
+            setTimeout(() => {
+                notif.classList.remove('opacity-100', 'translate-y-0');
+                notif.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+            }, 4000);
+        }
+
+        function initGameSetup() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            
+            window.addEventListener('keydown', e => {
+                if(e.code === 'ArrowLeft' || e.code === 'ArrowRight') keys[e.code] = true;
+            });
+            window.addEventListener('keyup', e => {
+                if(e.code === 'ArrowLeft' || e.code === 'ArrowRight') keys[e.code] = false;
+            });
+        }
+
+        function handleTouch(e) {
+            e.preventDefault(); 
+            const touchX = e.touches[0].clientX;
+            const rect = canvas.getBoundingClientRect();
+            const canvasX = touchX - rect.left;
+            
+            if(canvasX > 0 && canvasX < canvas.width) {
+                car.x = canvasX - (car.w / 2);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('gameOverlay').style.display = 'none';
+            // Carro Rosa Choque
+            car = { x: 155, y: 380, w: 30, h: 60, color: '#FF69B4' }; 
+            obstacles = [];
+            score = 0;
+            gameSpeed = 4;
+            frameCount = 0;
+            isGameOver = false;
+            nextUnlockScore = 200; // Resetar meta de desbloqueio para a nova corrida
+            document.getElementById('scoreDisplay').innerText = score;
+            
+            if(currentGameInterval) cancelAnimationFrame(currentGameInterval);
+            gameLoop();
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('gameOverText').innerHTML = `BATEU! 💔<br><span class="text-xl text-gray-700 mt-2 block font-sans">Seu estilo rendeu: ${Math.floor(score)} pts</span>`;
+        }
+
+        function updateGame() {
+            if (keys.ArrowLeft && car.x > 0) car.x -= 6;
+            if (keys.ArrowRight && car.x < canvas.width - car.w) car.x += 6;
+
+            frameCount++;
+            if (frameCount % Math.max(30, 80 - Math.floor(score/10)) === 0) {
+                let w = Math.random() * 30 + 20; 
+                let h = 20; 
+                let x = Math.random() * (canvas.width - w);
+                // Obstáculos em Vermelho ou Roxo Escuro
+                let color = Math.random() > 0.5 ? '#FF0035' : '#4A0E4E'; 
+                obstacles.push({ x, y: -20, w, h, color });
+            }
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.y += gameSpeed;
+
+                if (car.x < obs.x + obs.w &&
+                    car.x + car.w > obs.x &&
+                    car.y < obs.y + obs.h &&
+                    car.h + car.y > obs.y) {
+                    gameOver();
+                }
+
+                if (obs.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score += 10;
+                    document.getElementById('scoreDisplay').innerText = score;
+                    if(score % 100 === 0) gameSpeed += 0.5; 
+
+                    // Lógica de ganhar novo boneco
+                    if (score >= nextUnlockScore) {
+                        nextUnlockScore += 200; // Define a meta do próximo boneco
+                        const available = db.standings.filter(s => !unlockedDrivers.includes(s.driver));
+                        
+                        if (available.length > 0) {
+                            const randomDriver = available[Math.floor(Math.random() * available.length)];
+                            unlockedDrivers.push(randomDriver.driver);
+                            showUnlockNotification(randomDriver);
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawGame() {
+            // Pista Fundo
+            ctx.fillStyle = '#FFF0F5'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Linhas da pista cor-de-rosa suave
+            ctx.strokeStyle = '#FFB6C1';
+            ctx.setLineDash([20, 20]);
+            ctx.lineWidth = 4;
+            ctx.lineDashOffset = -frameCount * gameSpeed;
+            
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+
+            // Desenhando o Carro Rosa
+            ctx.fillStyle = car.color;
+            ctx.shadowColor = 'rgba(255, 105, 180, 0.5)';
+            ctx.shadowBlur = 10;
+            
+            // Corpo do carro com bordas arredondadas
+            ctx.beginPath();
+            ctx.roundRect(car.x, car.y, car.w, car.h, 5);
+            ctx.fill();
+            
+            // Pneus cinza escuro
+            ctx.fillStyle = '#333';
+            ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.roundRect(car.x - 4, car.y + 10, 4, 15, 2); ctx.fill(); 
+            ctx.beginPath(); ctx.roundRect(car.x + car.w, car.y + 10, 4, 15, 2); ctx.fill(); 
+            ctx.beginPath(); ctx.roundRect(car.x - 4, car.y + 40, 4, 15, 2); ctx.fill(); 
+            ctx.beginPath(); ctx.roundRect(car.x + car.w, car.y + 40, 4, 15, 2); ctx.fill(); 
+
+            // Obstáculos
+            obstacles.forEach(obs => {
+                ctx.fillStyle = obs.color;
+                ctx.shadowColor = obs.color;
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.roundRect(obs.x, obs.y, obs.w, obs.h, 4);
+                ctx.fill();
+            });
+            ctx.shadowBlur = 0; 
+        }
+
+        function gameLoop() {
+            if (isGameOver) return;
+            updateGame();
+            drawGame();
+            currentGameInterval = requestAnimationFrame(gameLoop);
+        }
+
+        // Inicializar na Home
+        renderContent('home');
+
+    </script>
+</body>
+</html>
